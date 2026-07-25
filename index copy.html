@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width,initial-scale=1">
+   <title>Kasir Sederhana</title>
+   <style>
+      body {
+         font-family: Arial;
+         background: #f3f3f3;
+         margin: 0;
+         padding: 20px
+      }
+
+      .wrap {
+         max-width: 800px;
+         margin: auto
+      }
+
+      .card {
+         background: #fff;
+         padding: 18px;
+         border-radius: 10px;
+         box-shadow: 0 2px 8px #0002;
+         margin-bottom: 16px
+      }
+
+      .row {
+         display: grid;
+         grid-template-columns: 2fr 1fr 80px;
+         gap: 10px;
+         margin: 8px 0;
+         align-items: center
+      }
+
+      input {
+         padding: 8px
+      }
+
+      button {
+         padding: 10px;
+         border: 0;
+         border-radius: 8px;
+         cursor: pointer
+      }
+
+      .add {
+         background: #2ecc71;
+         color: #fff;
+         width: 100%
+      }
+
+      .del,
+      .reset {
+         background: #e74c3c;
+         color: #fff;
+         margin-top: 10px
+      }
+
+      .trx {
+         border: 1px solid #ddd;
+         padding: 10px;
+         border-radius: 8px;
+         margin: 10px 0
+      }
+
+      .total {
+         text-align: right;
+         font-weight: bold
+      }
+
+      table {
+         width: 100%
+      }
+
+      td:last-child {
+         text-align: right
+      }
+
+      @media(max-width:600px) {
+         .row {
+            grid-template-columns: 1fr
+         }
+      }
+   </style>
+</head>
+
+<body>
+   <div class="wrap">
+      <div class="card">
+         <h2>🧾 Sistem Kasir</h2>
+         <div id="menus"></div><button class="add" onclick="addTransaction()">Tambah Transaksi</button>
+      </div>
+      <div class="card">
+         <h3>Rekap</h3>
+         <table id="summary"></table>
+         <div class="total">Pendapatan: <span id="income">Rp0</span></div>
+      </div>
+      <div class="card">         
+         <h3 style="margin-bottom: -.2px;">Riwayat</h3>
+         <button class="reset" onclick="resetData()" style="margin-bottom: 20px; position: relative;">Reset Semua
+            Data</button>
+         <div id="history">Belum ada transaksi.</div>
+      </div>
+   </div>
+   <script>
+      const menus = [{ id: "serba15", name: "Serba 15K", price: 15000 }, { id: "beef", name: "Beef Teriyaki", price: 25000 }];
+      let app = JSON.parse(localStorage.getItem("kasirData")) || { nextId: 1, transactions: [] };
+      const rp = n => "Rp" + n.toLocaleString("id-ID");
+      function save() { localStorage.setItem("kasirData", JSON.stringify(app)); }
+      const mc = document.getElementById("menus");
+      menus.forEach(m => mc.innerHTML += `<div class=row><div>${m.name}</div><div>${rp(m.price)}</div><input id="${m.id}" type=number min=0 value=0></div>`);
+      function addTransaction() {
+         let items = [];
+         menus.forEach(m => { let q = +document.getElementById(m.id).value || 0; if (q > 0) items.push({ ...m, qty: q }); });
+         if (!items.length) { alert("Masukkan minimal satu menu."); return; }
+         app.transactions.unshift({ id: app.nextId++, date: new Date().toISOString(), items });
+         menus.forEach(m => document.getElementById(m.id).value = 0);
+         save(); render();
+      }
+      function deleteTransaction(id) {
+         if (!confirm("Hapus transaksi?")) return;
+         app.transactions = app.transactions.filter(t => t.id !== id);
+         save(); render();
+      }
+      function resetData() {
+         if (!confirm("Reset semua data?")) return;
+         app = { nextId: 1, transactions: [] }; save(); render();
+      }
+      function render() {
+         const h = document.getElementById("history"), s = document.getElementById("summary");
+         h.innerHTML = ""; s.innerHTML = "";
+         let income = 0, recap = {}; menus.forEach(m => recap[m.id] = 0);
+         if (!app.transactions.length) h.textContent = "Belum ada transaksi.";
+         app.transactions.forEach(t => {
+            let sub = 0, html = `<div class=trx><b>Transaksi #${t.id}</b><table>`;
+            t.items.forEach(i => { let tot = i.qty * i.price; sub += tot; income += tot; recap[i.id] += i.qty; html += `<tr><td>${i.name} x${i.qty}</td><td>${rp(tot)}</td></tr>`; });
+            html += `</table><div class=total>Total: ${rp(sub)}</div><button class=del onclick="deleteTransaction(${t.id})">Hapus</button></div>`;
+            h.innerHTML += html;
+         });
+         menus.forEach(m => s.innerHTML += `<tr><td>${m.name}</td><td>${recap[m.id]}</td></tr>`);
+         document.getElementById("income").textContent = rp(income);
+      }
+      render();
+   </script>
+</body>
+
+</html>
