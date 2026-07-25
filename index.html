@@ -118,6 +118,7 @@
          app.transactions.unshift({ id: app.nextId++, date: new Date().toISOString(), items });
          menus.forEach(m => document.getElementById(m.id).value = 0);
          save(); render();
+         alert("Data telah ditambah");
       }
       function deleteTransaction(id) {
          if (!confirm("Hapus transaksi?")) return;
