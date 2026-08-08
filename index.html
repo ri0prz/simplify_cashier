@@ -97,7 +97,7 @@
          <table id="summary"></table>
          <div class="total">Pendapatan: <span id="income">Rp0</span></div>
       </div>
-      <div class="card">         
+      <div class="card">
          <h3 style="margin-bottom: -.2px;">Riwayat</h3>
          <button class="reset" onclick="resetData()" style="margin-bottom: 20px; position: relative;">Reset Semua
             Data</button>
@@ -105,7 +105,7 @@
       </div>
    </div>
    <script>
-      const menus = [{ id: "serba15", name: "Serba 15K", price: 15000 }, { id: "beef", name: "Beef Teriyaki", price: 25000 }];
+      const menus = [{ id: "serba15", name: "Serba 15K", price: 15000 }, { id: "beef", name: "Beef Teriyaki", price: 25000 }, { id: "tambahan", name: "Tambahan", price: 1 }];
       let app = JSON.parse(localStorage.getItem("kasirData")) || { nextId: 1, transactions: [] };
       const rp = n => "Rp" + n.toLocaleString("id-ID");
       function save() { localStorage.setItem("kasirData", JSON.stringify(app)); }
